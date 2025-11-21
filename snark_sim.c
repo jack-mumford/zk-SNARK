@@ -19,10 +19,11 @@
  */
 void build_witness(field_t F, uint64_t a, uint64_t b, uint64_t w,
                    uint64_t* pc, uint64_t* ps, uint64_t* py) {
-    /* TODO: implement using f_add/f_sub/f_mul; write into *pc, *ps, *py */
-    *pc = 0;
-    *ps = 0;
-    *py = 0;
+    *pc = f_mul(F, a, b);
+    *ps = f_add(F, a, b);
+    uint64_t diff = f_sub(F, *pc, *ps);
+    uint64_t prod = f_mul(F, w, diff);
+    *py = f_add(F, *ps, prod);
 }
 
 /*
@@ -43,8 +44,12 @@ void build_witness(field_t F, uint64_t a, uint64_t b, uint64_t w,
  * Replace the temporary return with your accumulated result.
  */
 uint64_t lincombo(field_t F, const uint64_t evals[7], const uint64_t z[7]) {
-    /* TODO: implement looped field multiply-and-accumulate */
-    return 0;
+    uint64_t acc = 0;
+    for (int i = 0; i < 7; i++) {
+        uint64_t term = f_mul(F, evals[i], z[i]);
+        acc = f_add(F, acc, term);
+    }
+    return acc;
 }
 
 /*
@@ -64,6 +69,8 @@ uint64_t lincombo(field_t F, const uint64_t evals[7], const uint64_t z[7]) {
  */
 uint64_t compute_H_tau(field_t F, uint64_t A_tau, uint64_t B_tau,
                        uint64_t C_tau, uint64_t t_tau) {
-    /* TODO: implement product-minus-term, inverse, and final multiply */
-    return 0;
+    uint64_t prod = f_mul(F, A_tau, B_tau);
+    uint64_t diff = f_sub(F, prod, C_tau);
+    uint64_t inv = f_inv(F, t_tau);
+    return f_mul(F, diff, inv);
 }
